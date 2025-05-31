@@ -1,1 +1,35 @@
+
 # docker-compose.yml placeholder
+
+version: '3.8'
+
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_API_URL=/api
+    depends_on:
+      - backend
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_HOST=your-rds-endpoint.rds.amazonaws.com
+      - DB_USER=admin
+      - DB_PASSWORD=yourpassword
+      - DB_NAME=exam_db
+    depends_on:
+      - db
+
+  db:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=exam_db
+    # Remove for production (use AWS RDS instead)
+    ports:
+      - "3306:3306"
