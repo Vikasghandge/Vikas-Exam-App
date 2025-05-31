@@ -15,13 +15,11 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - DB_HOST=db
-      - DB_USER=exam_user
-      - DB_PASSWORD=exam_password
-      - DB_NAME=exam_db
+      - DB_HOST= "devops-exam-db.cvu4cuyqyi5s.ap-south-1.rds.amazonaws.com"
+      - DB_USER= "admin" 
+      - DB_PASSWORD= "admin123"
+      - DB_NAME= "devops-exam-db"
       - SESSION_SECRET=devops-exam-secret
-    depends_on:
-      - db
 
   db:
     image: mysql:8.0
