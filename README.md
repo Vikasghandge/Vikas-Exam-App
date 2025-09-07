@@ -170,4 +170,73 @@ app.listen(PORT, () => {
 
 ```
 
+## k8s-node-deployment.yml
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-node-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: hello-node
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1   # at most 1 pod down during update
+      maxSurge: 1         # at most 1 extra pod above desired count
+  template:
+    metadata:
+      labels:
+        app: hello-node
+    spec:
+      containers:
+      - name: hello-node-container
+        image: ghandgevikas/hello-world:v3
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            cpu: "100m"     # guaranteed CPU
+            memory: "128Mi"
+          limits:
+            cpu: "500m"     # max CPU per pod
+            memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-node-service
+spec:
+  selector:
+    app: hello-node
+  ports:
+  - protocol: TCP
+    port: 5000       # service port
+    targetPort: 5000 # pod/container port
+    nodePort: 30080  # fixed NodePort
+  type: NodePort
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: hello-node-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: hello-node-deployment
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+
+```
+
 
